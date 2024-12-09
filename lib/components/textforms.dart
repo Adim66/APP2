@@ -4,11 +4,15 @@ class CostumTextForm extends StatelessWidget {
   final String hint;
   final TextEditingController mycontroller;
   final Icon icon;
+  final TextInputType? keyboard;
+  final bool is_password;
   const CostumTextForm(
       {super.key,
       required this.mycontroller,
       required this.hint,
-      required this.icon});
+      required this.icon,
+      required this.keyboard,
+      required this.is_password});
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +33,8 @@ class CostumTextForm extends StatelessWidget {
                 color: Colors.blue,
                 fontSize: 14,
                 fontWeight: FontWeight.normal),
-            icon: icon));
+            icon: icon),
+        keyboardType: keyboard!,
+        obscureText: is_password);
   }
 }

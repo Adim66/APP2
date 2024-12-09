@@ -47,11 +47,17 @@ dependencies:
   fl_chart: ^0.68.0
   intl: ^0.19.0
   google_maps_flutter: ^2.0.6
-  location: ^4.3.0
+  location:
+    git:
+      url: https://github.com/781flyingdutchman/flutterlocation.git
+      ref: 'V4'
+      path: packages/location
   flutter_map: ^7.0.2
   latlong2: ^0.9.1
   url_launcher: ^6.0.20
-
+  flutter_map_cancellable_tile_provider: ^3.0.0
+  file_picker: ^8.0.6
+  uuid: ^4.4.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -78,6 +84,9 @@ flutter:
   assets:
     - lib/assets/logo.png
     - lib/assets/logo2.png
+    - lib/assets/Knauf-usine-belgique-1319x800.jpg
+    - lib/assets/lo.jpg
+    - lib/assets/mak.jpg
 
   #   - images/a_dot_ham.jpeg
 

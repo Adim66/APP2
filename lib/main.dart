@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_2/auth/login.dart';
 import 'package:flutter_application_2/auth/signup.dart';
 import 'package:flutter_application_2/modelandview/admin/addproduct.dart';
+import 'package:flutter_application_2/modelandview/admin/adminadd.dart';
 import 'package:flutter_application_2/modelandview/admin/adminhome.dart';
 import 'package:flutter_application_2/modelandview/admin/anlysisscreen.dart';
 import 'package:flutter_application_2/modelandview/client/adminclient.dart';
 import 'package:flutter_application_2/modelandview/clientanddist/admindest.dart';
-import 'package:flutter_application_2/modelandview/profil.dart';
+import 'package:flutter_application_2/modelandview/profils/profil.dart';
 import 'package:flutter_application_2/modelandview/projects/produits.dart';
 import 'package:flutter_application_2/modelandview/workers/staff.dart';
 import 'package:provider/provider.dart';
@@ -21,7 +22,8 @@ Future main() async {
           apiKey: "AIzaSyDGeKQ9Bd7EHv_bTaRzDhPMvHr_mqbJfdE",
           appId: "1:843185362555:android:dfdb3a49189bb2352274de",
           messagingSenderId: "843185362555",
-          projectId: "flutter-application-2-5c5a1"));
+          projectId: "flutter-application-2-5c5a1",
+          storageBucket: "flutter-application-2-5c5a1.appspot.com"));
 
   runApp(ChangeNotifierProvider(
       create: (context) => PoductsManager(), child: MyApp()));
@@ -62,9 +64,10 @@ class _MyAppState extends State<MyApp> {
         "Admin": (context) => const AdminHome(),
         "addProduct": (context) => AddScreen(),
         "AdminClient": (context) => Adminclient(),
+        "addproject": (context) => AdminAddProject(),
         "profil": (context) => Profil(),
         "staff": (context) => StaffScreen(),
-        "analysisadmin": (context) => AnalysisAdmin(),
+        "adminAnalys": (context) => StatisticsPage(),
         "admindest": (context) => DistributorMainHomePage(),
       },
     );

@@ -18,13 +18,13 @@ class _StaffScreenState extends State<StaffScreen> {
         .where("id", isEqualTo: FirebaseAuth.instance.currentUser?.uid)
         .get();
     String dep = userwithid.docs[0]["dep"];
-
+    print(dep);
     CollectionReference collref =
         FirebaseFirestore.instance.collection("projects");
-    QuerySnapshot loadprojcts =
-        await collref.where("dep", isEqualTo: dep).get();
+    QuerySnapshot loadprojcts = await collref.where(dep, isEqualTo: true).get();
     projects.clear();
     projects.addAll(loadprojcts.docs);
+    print(projects.length);
     notfetched = false;
     setState(() {});
   }
@@ -42,39 +42,44 @@ class _StaffScreenState extends State<StaffScreen> {
       appBar: AppBar(
         title: Text("Staff Projects"),
         backgroundColor: Colors.blue,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () {
+              FirebaseAuth.instance.signOut();
+              Navigator.of(context).pushNamed("login");
+            },
+          )
+        ],
       ),
-      body: notfetched
-          ? CircularProgressIndicator(
-              color: Colors.blue,
-            )
-          : ListView.builder(
-              padding: EdgeInsets.all(16.0),
-              itemCount: projects.length,
-              itemBuilder: (context, index) {
-                var project = projects[index];
+      body: ListView.builder(
+        padding: EdgeInsets.all(16.0),
+        itemCount: projects.length,
+        itemBuilder: (context, index) {
+          var project = projects[index];
 
-                return Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  margin: EdgeInsets.symmetric(vertical: 8.0),
-                  child: ListTile(
-                    title: Text(project['name']),
-                    trailing: Icon(Icons.assignment, color: Colors.blue),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => TaskDetailPage(
-                              project: project, nd_of_tasks: project["name"]),
-                        ),
-                      );
-                    },
+          return Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            margin: EdgeInsets.symmetric(vertical: 8.0),
+            child: ListTile(
+              title: Text(project['name']),
+              trailing: Icon(Icons.assignment, color: Colors.blue),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TaskDetailPage(
+                        project: project, nd_of_tasks: project["tasks"]),
                   ),
                 );
               },
             ),
+          );
+        },
+      ),
     );
   }
 }

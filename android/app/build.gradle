@@ -3,6 +3,7 @@ plugins {
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
     id 'com.google.gms.google-services'
+  
 }
 
 def localProperties = new Properties()
@@ -24,9 +25,10 @@ if (flutterVersionName == null) {
 }
 
 android {
+    ndkVersion "25.1.8937393"
     namespace = "com.example.flutter_application_2"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -35,7 +37,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.flutter_application_2"
-        minSdk = 22
+        minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName

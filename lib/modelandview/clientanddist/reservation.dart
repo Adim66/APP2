@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -31,32 +33,58 @@ class _ReservationPageState extends State<ReservationPage> {
 
   void _loadDistributors() async {
     distributorPositions.clear();
-    QuerySnapshot query =
-        await FirebaseFirestore.instance.collection("distributers").get();
-    dists.clear();
-    dists.addAll(query.docs);
+    QuerySnapshot users = await FirebaseFirestore.instance
+        .collection("Users")
+        .where("type", isEqualTo: "Distributor")
+        .get();
+    ;
+    dists.addAll(users.docs);
+
     for (int i = 0; i < dists.length; i++) {
       distributorPositions
           .add(LatLng(dists[i]["latitude"], dists[i]["longitude"]));
+      print(distributorPositions[i].latitude);
     }
+
     setState(() {
       _markers = distributorPositions.map((position) {
         return Marker(
           point: position,
-          child: const Icon(Icons.location_on, color: Colors.red, size: 30),
+          child: IconButton(
+              onPressed: () {
+                _showReservationDialog(position);
+              },
+              icon: Icon(Icons.location_on_rounded, color: Colors.red)),
         );
       }).toList();
     });
   }
 
   void ajouterPanier(LatLng pos) async {
+    final now = DateTime.now();
+    QuerySnapshot q = await FirebaseFirestore.instance
+        .collection("Users")
+        .where("latitude", isEqualTo: pos.latitude)
+        .where("longitude", isEqualTo: pos.longitude)
+        .get();
+
+    List<QueryDocumentSnapshot> distrid = q.docs;
+    print(distrid[0].id);
+
     DocumentReference doc =
-        await FirebaseFirestore.instance.collection("reservation").add({
-      "Reserver": FirebaseAuth.instance.currentUser!.uid,
+        FirebaseFirestore.instance.collection("Users").doc(distrid[0].id);
+    print("aaaaaaaaaaaaaaaaaaaa");
+
+    DocumentReference docc = await doc.collection("reservation").add({
+      "Client": FirebaseAuth.instance.currentUser!.email,
       "product": widget.idproduct,
-      "lat": pos.latitude,
-      "long": pos.longitude
+      "Date": "${now.day}/${now.month}/${now.year}",
+      "Time": "${now.hour}:${now.minute}:${now.second}",
+      "dest_phone": "${distrid[0]["Phone_Number"]}",
+      "des_lat": "${distrid[0]["latitude"]}",
+      "des_long": "${distrid[0]["longitude"]}"
     });
+    print("hhhhhhhhhhhhhhhhhhhhh");
   }
 
   Future _getCurrentLocation() async {
@@ -89,10 +117,10 @@ class _ReservationPageState extends State<ReservationPage> {
                 ajouterPanier(position);
                 Navigator.of(context).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Réservation ajoutée au panier')),
+                  SnackBar(content: Text('Demande Added')),
                 );
               },
-              child: Text('Ajouter'),
+              child: Text('Add'),
             ),
           ],
         );
@@ -104,7 +132,7 @@ class _ReservationPageState extends State<ReservationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Réservation'),
+          title: Text('Demande'),
         ),
         body: _initialPos == null
             ? Center(child: CircularProgressIndicator())
@@ -115,12 +143,16 @@ class _ReservationPageState extends State<ReservationPage> {
                 ),
                 children: [
                   TileLayer(
-                    urlTemplate:
-                        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                    subdomains: ['a', 'b', 'c'],
-                  ),
+                      urlTemplate:
+                          "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                      userAgentPackageName:
+                          'com.example.flutter_application_2'),
                   MarkerLayer(markers: _markers),
                 ],
               ));
   }
 }
+/// users fih el localisations w kol user ypointy 3al tab d
+/// e reservations elly 3amlouh les clients 
+/// nthbtou f liste des reservations fil page mte3 el admindist , 
+/// wnsalla7 tsawer w profil w c bon

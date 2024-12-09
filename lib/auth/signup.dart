@@ -16,36 +16,42 @@ class _SignupState extends State<Signup> {
   TextEditingController password = TextEditingController();
   TextEditingController username = TextEditingController();
   TextEditingController userprename = TextEditingController();
-  //TextEditingController usertype = TextEditingController();
+  TextEditingController Phone = TextEditingController();
   late String usertype;
   late String dep;
   bool tappedemployer = false;
   bool tappedadmin = false;
   bool tappedclient = false;
+  bool tappeddist = false;
 
   void ajouterUser(
-      {required String user_id, required String client_type}) async {
+      {required String user_id,
+      required String client_type,
+      required String Phone}) async {
     CollectionReference coll =
         await FirebaseFirestore.instance.collection("Users");
     if (client_type == "Employer") {
-      DocumentReference doc =
-          await coll.add({"id": user_id, "type": client_type, "dep": dep});
+      DocumentReference doc = await coll.add(
+          {"id": user_id, "type": client_type, "dep": dep, "Phone_Num": Phone});
     } else {
-      await coll.add({"id": user_id, "type": client_type});
+      await coll.add({"id": user_id, "type": client_type, "Phone_Num": Phone});
     }
   }
 
   cheched(int i) {
-    if (i == 1) {
-      tappedemployer = !tappedemployer;
-    } else {
-      if (i == 2) {
+    switch (i) {
+      case (1):
+        tappedemployer = !tappedemployer;
+        break;
+      case (2):
         tappedadmin = !tappedadmin;
-      } else {
+        break;
+      case (3):
         tappedclient = !tappedclient;
-      }
+        break;
+      case (4):
+        tappeddist = !tappeddist;
     }
-    print("gggg");
     setState(() {});
   }
 
@@ -98,9 +104,12 @@ class _SignupState extends State<Signup> {
               ),
               Container(height: 10),
               CostumTextForm(
-                  mycontroller: username,
-                  hint: "Enter Your name",
-                  icon: Icon(Icons.person)),
+                mycontroller: username,
+                hint: "Enter Your name",
+                icon: Icon(Icons.person),
+                keyboard: TextInputType.name,
+                is_password: false,
+              ),
               Container(height: 10),
               Text(
                 "Family Name",
@@ -108,9 +117,24 @@ class _SignupState extends State<Signup> {
               ),
               Container(height: 10),
               CostumTextForm(
-                  mycontroller: userprename,
-                  hint: "Enter your Pre-Name",
-                  icon: Icon(Icons.person_2)),
+                mycontroller: userprename,
+                hint: "Enter your Pre-Name",
+                icon: Icon(Icons.person_2),
+                keyboard: TextInputType.name,
+                is_password: false,
+              ),
+              Container(height: 10),
+              Text(
+                "Phone Number ",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Container(height: 10),
+              CostumTextForm(
+                  mycontroller: Phone,
+                  hint: "Your Phone Number ",
+                  icon: Icon(Icons.phone),
+                  keyboard: TextInputType.phone,
+                  is_password: false),
               Container(height: 10),
               Text(
                 "Email",
@@ -118,9 +142,12 @@ class _SignupState extends State<Signup> {
               ),
               Container(height: 10),
               CostumTextForm(
-                  mycontroller: email,
-                  hint: "Enter Your Mail",
-                  icon: Icon(Icons.email)),
+                mycontroller: email,
+                hint: "Enter Your Mail",
+                icon: Icon(Icons.email),
+                keyboard: TextInputType.emailAddress,
+                is_password: false,
+              ),
               Container(height: 10),
               Text(
                 "PassWord",
@@ -131,6 +158,8 @@ class _SignupState extends State<Signup> {
                 mycontroller: password,
                 hint: "Enter Your Password",
                 icon: Icon(Icons.password_rounded),
+                keyboard: TextInputType.visiblePassword,
+                is_password: true,
               ),
               Container(height: 10),
               Text(
@@ -163,12 +192,12 @@ class _SignupState extends State<Signup> {
                                   child: Text("Security")),
                               ElevatedButton(
                                   onPressed: () {
-                                    dep = "maintenace";
+                                    dep = "maintenance";
                                   },
                                   child: Text("Maintenance")),
                               ElevatedButton(
                                   onPressed: () {
-                                    dep = "electrique or mecanique";
+                                    dep = "electrique and mecanique";
                                   },
                                   child: Text("Electrique or Mencanique"))
                             ])).show();
@@ -185,15 +214,23 @@ class _SignupState extends State<Signup> {
                 ),
               ),
               ListTile(
-                title: Text("Client"),
-                trailing: Checkbox(
-                  value: tappedclient,
-                  onChanged: (bool? value) {
-                    usertype = "Client";
-                    cheched(3);
-                  },
-                ),
-              ),
+                  title: Text("Client"),
+                  trailing: Checkbox(
+                    value: tappedclient,
+                    onChanged: (bool? value) {
+                      usertype = "Client";
+                      cheched(3);
+                    },
+                  )),
+              ListTile(
+                  title: Text("Distributor"),
+                  trailing: Checkbox(
+                    value: tappeddist,
+                    onChanged: (bool? value) {
+                      usertype = "Distributor";
+                      cheched(4);
+                    },
+                  )),
               Container(height: 10),
               MaterialButton(
                 shape: RoundedRectangleBorder(
@@ -207,7 +244,8 @@ class _SignupState extends State<Signup> {
                     verify();
                     ajouterUser(
                         user_id: FirebaseAuth.instance.currentUser!.uid,
-                        client_type: usertype);
+                        client_type: usertype,
+                        Phone: Phone.text);
                   } on FirebaseAuthException catch (e) {
                     if (e.code == 'weak-password') {
                       AwesomeDialog(

@@ -43,5 +43,15 @@
       }
     }
   ],
-  "configuration_version": "1"
+  "configuration_version": "1",
+  "plugins": [
+  [
+    "expo-build-properties",
+    {
+      "android": {
+        "kotlinVersion": "1.6.21"
+      }
+    }
+  ]
+]
 }

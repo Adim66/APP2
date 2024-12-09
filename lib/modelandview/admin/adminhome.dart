@@ -14,7 +14,7 @@ class AdminHome extends StatefulWidget {
 class _AdminHomeState extends State<AdminHome> {
   List<QueryDocumentSnapshot> list = [];
   bool isloading = true;
-  List<String> screens = ["addProduct", "addproject"];
+  List<String> screens = ["addProduct", "addproject", "adminAnalys"];
 
   getdata() async {
     await PoductsManager.getdata();
@@ -58,7 +58,7 @@ class _AdminHomeState extends State<AdminHome> {
                       ).show();
                     }
                     return Product(
-                      image: PoductsManager.listproducts[index]['url'],
+                      image: PoductsManager.listproducts[index]['img_url'],
                       productname: PoductsManager.listproducts[index]['name'],
                     );
                   },
@@ -76,7 +76,10 @@ class _AdminHomeState extends State<AdminHome> {
                         label: "Add Product"),
                     BottomNavigationBarItem(
                         icon: Icon(Icons.group, color: Colors.black),
-                        label: "Add Project")
+                        label: "Add Project"),
+                    BottomNavigationBarItem(
+                        icon: Icon(Icons.area_chart_sharp),
+                        label: "Show Acheivement")
                   ],
                   currentIndex: 0,
                   onTap: (indice) {

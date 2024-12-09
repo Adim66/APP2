@@ -1,11 +1,11 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class AdminAddProject extends StatefulWidget {
   @override
-  // ignore: library_private_types_in_public_api
   _AdminAddProjectState createState() => _AdminAddProjectState();
 }
 
@@ -15,9 +15,9 @@ class _AdminAddProjectState extends State<AdminAddProject> {
   final List<String> _tasks = [];
   final List<String> _assignedDep = [];
   final List<String> Departments = [
-    'Maintance ',
-    'Security',
-    'Electrique et Mécanique'
+    'maintenance ',
+    'security',
+    'electrique and mecanique'
   ];
 
   DateTime? _startDate;
@@ -65,25 +65,46 @@ class _AdminAddProjectState extends State<AdminAddProject> {
   Map<String, dynamic> ToTask(List<String> list) {
     Map<String, dynamic> map = {};
     for (int i = 0; i < list.length; i++) {
-      map[(i + 1).toString()] = {'name': list[i], 'state': "not_yet"};
+      map[(i + 1).toString()] = {
+        'name': list[i],
+        'state': false,
+        "who_finish": []
+      };
     }
     return map;
   }
 
   void saveProject() async {
+    bool main = false;
+    bool sec = false;
+    bool ele_mec = false;
+
     try {
       Map<String, dynamic> map = castToMap(_assignedDep);
-      Map<String, dynamic> map1 = {
+      late Map<String, dynamic> map1 = {};
+      if (_assignedDep.contains("maintenance")) {
+        main = true;
+      }
+      if (_assignedDep.contains("security")) {
+        sec = true;
+      }
+      if (_assignedDep.contains("electrique and mecanique")) {
+        ele_mec = true;
+      }
+
+      map1 = {
+        "maintenance": main,
+        "security": sec,
+        "electrique and mecanique": ele_mec,
         "name": _projectNameController.text,
         "start": _dateFormat.format(_startDate!),
         "end": _dateFormat.format(_endDate!),
-        "tasks": _tasks.length.toString()
+        "tasks": _tasks.length,
+        "Superviser": FirebaseAuth.instance.currentUser!.email
       };
 
-      map1.addAll(map);
       DocumentReference pro =
           await FirebaseFirestore.instance.collection("projects").add(map1);
-      print("Document ajouté avec ID: ${pro.id}");
 
       try {
         await FirebaseFirestore.instance
@@ -117,7 +138,6 @@ class _AdminAddProjectState extends State<AdminAddProject> {
       _projectNameController.clear();
       _tasks.clear();
 
-      // Mise à jour de l'état de l'interface utilisateur
       setState(() {
         _assignedDep.clear();
         _startDate = null;
@@ -136,86 +156,84 @@ class _AdminAddProjectState extends State<AdminAddProject> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Add New Project'),
         backgroundColor: Colors.blue,
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Nom du projet
-            TextField(
-              controller: _projectNameController,
-              decoration: InputDecoration(
-                labelText: 'Project Name',
-                border: OutlineInputBorder(),
+      body: SingleChildScrollView(
+        // Wrap the entire content in SingleChildScrollView
+        child: Padding(
+          padding: EdgeInsets.all(screenWidth * 0.04),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: _projectNameController,
+                decoration: InputDecoration(
+                  labelText: 'Project Name',
+                  border: OutlineInputBorder(),
+                ),
               ),
-            ),
-            SizedBox(height: 16),
-
-            // Date de début
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Start Date: ${_startDate != null ? _dateFormat.format(_startDate!) : 'Not set'}',
-                    style: TextStyle(fontSize: 16),
+              SizedBox(height: screenWidth * 0.04),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Start Date: ${_startDate != null ? _dateFormat.format(_startDate!) : 'Not set'}',
+                      style: TextStyle(fontSize: 16),
+                    ),
                   ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.calendar_today),
-                  onPressed: () => _selectDate(context, true),
-                ),
-              ],
-            ),
-            SizedBox(height: 16),
-
-            // Date de fin
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'End Date: ${_endDate != null ? _dateFormat.format(_endDate!) : 'Not set'}',
-                    style: TextStyle(fontSize: 16),
+                  IconButton(
+                    icon: Icon(Icons.calendar_today),
+                    onPressed: () => _selectDate(context, true),
                   ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.calendar_today),
-                  onPressed: () => _selectDate(context, false),
-                ),
-              ],
-            ),
-            SizedBox(height: 16),
-
-            // Ajouter des tâches
-            TextField(
-              controller: _taskController,
-              decoration: InputDecoration(
-                labelText: 'New Task',
-                border: OutlineInputBorder(),
+                ],
               ),
-            ),
-            SizedBox(height: 8),
-            ElevatedButton(
-              onPressed: _addTask,
-              child: Text('Add Task'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
+              SizedBox(height: screenWidth * 0.04),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'End Date: ${_endDate != null ? _dateFormat.format(_endDate!) : 'Not set'}',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.calendar_today),
+                    onPressed: () => _selectDate(context, false),
+                  ),
+                ],
               ),
-            ),
-            SizedBox(height: 16),
-
-            // Liste des tâches
-            Text(
-              'Tasks',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
-            Expanded(
-              child: ListView.builder(
+              SizedBox(height: screenWidth * 0.04),
+              TextField(
+                controller: _taskController,
+                decoration: InputDecoration(
+                  labelText: 'New Task',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              SizedBox(height: screenWidth * 0.02),
+              ElevatedButton(
+                onPressed: _addTask,
+                child: Text('Add Task'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                ),
+              ),
+              SizedBox(height: screenWidth * 0.04),
+              Text(
+                'Tasks',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: screenWidth * 0.02),
+              ListView.builder(
+                shrinkWrap:
+                    true, // Ensures the ListView takes up only the needed space
+                physics:
+                    NeverScrollableScrollPhysics(), // Disable scrolling for ListView
                 itemCount: _tasks.length,
                 itemBuilder: (context, index) {
                   return ListTile(
@@ -223,17 +241,17 @@ class _AdminAddProjectState extends State<AdminAddProject> {
                   );
                 },
               ),
-            ),
-            SizedBox(height: 16),
-
-            // Attribuer des ouvriers
-            Text(
-              'Assign Department',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
-            Expanded(
-              child: ListView.builder(
+              SizedBox(height: screenWidth * 0.04),
+              Text(
+                'Assign Department',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: screenWidth * 0.02),
+              ListView.builder(
+                shrinkWrap:
+                    true, // Ensures the ListView takes up only the needed space
+                physics:
+                    NeverScrollableScrollPhysics(), // Disable scrolling for ListView
                 itemCount: Departments.length,
                 itemBuilder: (context, index) {
                   return CheckboxListTile(
@@ -251,20 +269,22 @@ class _AdminAddProjectState extends State<AdminAddProject> {
                   );
                 },
               ),
-            ),
-            SizedBox(height: 16),
-
-            // Bouton d'enregistrement
-            ElevatedButton(
-              onPressed: () {
-                saveProject();
-              },
-              child: Text('Save Project'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
+              SizedBox(height: screenWidth * 0.04),
+              ElevatedButton(
+                onPressed: saveProject,
+                child: Text('Save Project'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  padding: EdgeInsets.symmetric(vertical: screenWidth * 0.04),
+                ),
               ),
-            ),
-          ],
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("Finished"))
+            ],
+          ),
         ),
       ),
     );

@@ -73,13 +73,13 @@ class _ProductState extends State<Product> {
 class PoductsManager with ChangeNotifier {
   static List<QueryDocumentSnapshot> listproducts = [];
 
-  void ajouterproduct({required String url, required String namep}) async {
+  /* void ajouterproduct({required String url, required String namep}) async {
     DocumentReference doc = await FirebaseFirestore.instance
         .collection("produits")
         .add({"name": namep, "url": url});
 
     //notifyListeners();
-  } //adimboubaker2020@gmail.com
+  } //adimboubaker2020@gmail.com*/
 
   static getdata() async {
     QuerySnapshot list =
@@ -95,9 +95,10 @@ class PoductsManager with ChangeNotifier {
     notifyListeners();
   }
 
-  history({required String doc_id, required String user_id}) async {
+  history(
+      {required String name, required String user, required String url}) async {
     DocumentReference history = await FirebaseFirestore.instance
         .collection("history")
-        .add({"doc_id": doc_id, "user_id": user_id});
+        .add({"product-name": name, "user": user, "url": url});
   }
 }

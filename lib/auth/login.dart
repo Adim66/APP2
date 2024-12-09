@@ -1,4 +1,5 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/components/textforms.dart';
@@ -22,7 +23,7 @@ class _LoginPageState extends State<LoginPage> {
                   "843185362555-pev0ink7dndgehfl3tpn39k1poa3d0e6.apps.googleusercontent.com")
           .signIn();
       if (googleUser == null) {
-        print('Sign in aborted by user');
+        print('ba77a');
         return;
       }
 
@@ -45,6 +46,32 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  void goToScreen() async {
+    print(FirebaseAuth.instance.currentUser!.uid);
+    QuerySnapshot q = await FirebaseFirestore.instance
+        .collection("Users")
+        .where("id", isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .get();
+
+    List<QueryDocumentSnapshot> list = q.docs;
+
+    if (list.isNotEmpty) {
+      String userType = list[0]["type"];
+
+      if (userType == "Client") {
+        Navigator.of(context).pushNamed("AdminClient");
+      } else if (userType == "Admin") {
+        Navigator.of(context).pushNamed("Admin");
+      } else if (userType == "Employer") {
+        Navigator.of(context).pushNamed("staff");
+      } else if (userType == "Distributor") {
+        Navigator.of(context).pushNamed("admindest");
+      }
+    } else {
+      print("void");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,7 +85,7 @@ class _LoginPageState extends State<LoginPage> {
         body: Container(
             padding: EdgeInsets.all(20),
             child: ListView(children: [
-              Center(child: Text("@ Adim Boubaker")),
+              Center(child: Text("")),
               Container(height: 20),
               Center(
                   child: Card(
@@ -76,14 +103,17 @@ class _LoginPageState extends State<LoginPage> {
                   )),
               Container(height: 10),
               Text(
-                "Create Your KNAUF account ",
+                "Enter Your KNAUF Account ",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               Container(height: 10),
               CostumTextForm(
-                  mycontroller: email,
-                  hint: "Enter Your Email",
-                  icon: Icon(Icons.email)),
+                mycontroller: email,
+                hint: "Enter Your Email",
+                icon: Icon(Icons.email),
+                keyboard: TextInputType.emailAddress,
+                is_password: false,
+              ),
               Container(height: 10),
               Text(
                 "PassWord",
@@ -94,6 +124,8 @@ class _LoginPageState extends State<LoginPage> {
                 mycontroller: password,
                 hint: "Enter Your Password",
                 icon: Icon(Icons.password_rounded),
+                keyboard: TextInputType.visiblePassword,
+                is_password: true,
               ),
               Container(height: 10),
               MaterialButton(
@@ -112,8 +144,8 @@ class _LoginPageState extends State<LoginPage> {
                       title: 'Sucsess',
                       desc: 'Welcome! ',
                     ).show();
-
-                    Navigator.of(context).pushNamed("AdminClient");
+                    print("hhhhhhhh");
+                    goToScreen();
 
                     //CollectionReference products =
                     //  FirebaseFirestore.instance.collection("Products");
@@ -185,7 +217,14 @@ class _LoginPageState extends State<LoginPage> {
                       Navigator.of(context).pushNamed("register");
                     },
                     child: Text("Create account"))
-              ])
+              ]),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text("                      "),
+                  Text("@ Adim Boubaker")
+                ],
+              )
             ])));
   }
 }
